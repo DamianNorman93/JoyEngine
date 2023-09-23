@@ -1,9 +1,9 @@
 #include <iostream>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_image.h>
 
 const int WIDTH = 800, HEIGHT = 600;
-const char* NameEngine = "JoyEngine";
+const char* NameEngine = "JoyEngine 0.1.23092023";
 
 // Función para agregar la lógica del juego
 void RunGame()
@@ -21,7 +21,8 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    SDL_Window* window = SDL_CreateWindow(NameEngine, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WIDTH, HEIGHT, SDL_WINDOW_SHOWN);
+    SDL_Window* window = SDL_CreateWindow(NameEngine, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, SDL_WINDOW_MAXIMIZED);
+
     if (window == nullptr)
     {
         std::cout << "Error al crear la ventana: " << SDL_GetError() << std::endl;
@@ -41,7 +42,21 @@ int main(int argc, char* argv[])
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
     SDL_RenderClear(renderer);
 
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE );
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE );    
+
+    // Definir las coordenadas y dimensiones del rectángulo
+    SDL_Rect rect;
+    rect.x = 0;
+    rect.y = 0;
+    rect.w = 800;
+    rect.h = 20;
+
+    // Rellenar el rectángulo con color
+    SDL_RenderFillRect(renderer, &rect);
+
+
+    //SDL_SetRenderDrawColor(renderer, 62, 86, 179, SDL_ALPHA_OPAQUE );
+    SDL_SetRenderDrawColor(renderer, 247, 23, 255, SDL_ALPHA_OPAQUE );
     //SDL_RenderDrawLine(renderer, x1,y1,x2,y2);
                                      //largo 256   
     /*
@@ -50,21 +65,14 @@ int main(int argc, char* argv[])
     SDL_RenderDrawLine(renderer, 1,20,800,20);
     SDL_RenderDrawLine(renderer, 799,1,799,20);*/
     
-    SDL_RenderDrawLine(renderer, 3,3,797,3);
-    SDL_RenderDrawLine(renderer, 3,3,3,17);
-    SDL_RenderDrawLine(renderer, 3,17,797,17);
-    SDL_RenderDrawLine(renderer, 797,3,797,17);
-    
+    SDL_RenderDrawLine(renderer, 0,0,799,0);
+    SDL_RenderDrawLine(renderer, 0,0,0,20);
+    SDL_RenderDrawLine(renderer, 0,20,799,20);
+    SDL_RenderDrawLine(renderer, 799,0,799,20);
 
-       
-
-    
-    
 
 
     SDL_RenderPresent(renderer);
-    
-
 
     bool quit = false;
     SDL_Event event;
