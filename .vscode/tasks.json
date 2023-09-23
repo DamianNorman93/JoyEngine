@@ -1,0 +1,15 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Run car.bat",
+        "type": "shell",
+        "command": "F:\\Documents\\JoyEngine\\JoyEngine\\car.bat",
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        }
+      }
+    ]
+  }
+  
