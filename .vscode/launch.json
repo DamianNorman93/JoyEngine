@@ -1,0 +1,16 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run car.bat Task",
+      "type": "shell",
+      "command": "echo", // A dummy command, as we will run the task instead
+      "args": ["This is a dummy configuration to run the task."],
+      "preLaunchTask": "Run car.bat", // Refers to the task label in tasks.json
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    }
+  ]
+}
