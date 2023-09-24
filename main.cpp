@@ -1,6 +1,7 @@
 #include <iostream>
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_image.h>
+#include <cmath>
 
 const int WIDTH = 800, HEIGHT = 600;
 int WIDTHW = 800, HEIGHTH = 600;
@@ -62,7 +63,7 @@ int main(int argc, char* argv[])
         SDL_RenderPresent(renderer);
         
         // Lógica del juego que se ejecuta en cada iteración del bucle principal
-        //RunGame();
+        RunGame();
 
     }
     
@@ -78,73 +79,117 @@ int main(int argc, char* argv[])
 void RunGame()
 {
     // Agrega aquí la logica del juego
-    ///sum logic :3
+    ///sum logic here :3
 
 }
+
+void draw_rectangle(SDL_Renderer* renderer, int x, int y, int w, int h, Uint8 r, Uint8 g, Uint8 b)
+{
+    // Asegurarse de que el renderer esté configurado correctamente
+    if (renderer == nullptr)
+    {
+        //Mostrar un mensaje de error o manejar la falta de un renderer apropiado
+        return;
+    }
+
+    // Definir las coordenadas y dimensiones del rectángulo
+    SDL_Rect rect;
+    rect.x = x;
+    rect.y = y;
+    rect.w = w;
+    rect.h = h;
+
+    // Establecer el color de dibujo
+    SDL_SetRenderDrawColor(renderer, r, g, b, SDL_ALPHA_OPAQUE);
+
+    // Rellenar el rectángulo con el color especificado
+    SDL_RenderFillRect(renderer, &rect);
+}
+
+void draw_filled_circle(SDL_Renderer* renderer, int x, int y, int radius, Uint8 r, Uint8 g, Uint8 b) {
+    SDL_SetRenderDrawColor(renderer, r, g, b, SDL_ALPHA_OPAQUE);
+
+    for (int dy = -radius; dy <= radius; dy++) {
+        for (int dx = -radius; dx <= radius; dx++) {
+            if (dx*dx + dy*dy <= radius*radius) {
+                SDL_RenderDrawPoint(renderer, x + dx, y + dy);
+            }
+        }
+    }
+}
+
+void draw_rounded_rectangle(SDL_Renderer* renderer, int x, int y, int w, int h, int cornerRadius, Uint8 r, Uint8 g, Uint8 b)
+{
+    // Asegurarse de que el renderer esté configurado correctamente
+    if (renderer == nullptr)
+    {
+        // Mostrar un mensaje de error o manejar la falta de un renderer apropiado
+        return;
+    }
+
+    // Establecer el color de dibujo
+    SDL_SetRenderDrawColor(renderer, r, g, b, SDL_ALPHA_OPAQUE);
+
+    // Dibujar círculos en las esquinas
+    int circleRadius = cornerRadius;
+
+    // Esquina superior izquierda
+    draw_filled_circle(renderer, x + 10, y, circleRadius, r, g, b); //left top
+    //draw_filled_circle(renderer, x + circleRadius + 1, y + h - circleRadius, circleRadius, r, g, b); //left bottom
+
+    //SDL_RenderDrawLine(renderer, x + circleRadius, y, x + w - circleRadius, y);
+    //SDL_RenderDrawLine(renderer, x, y + circleRadius, x, y + h - circleRadius);
+    //SDL_RenderDrawLine(renderer, x + circleRadius, y + h, x + w - circleRadius, y + h);
+    //SDL_RenderDrawLine(renderer, x + w, y + circleRadius, x + w, y + h - circleRadius);
+
+    // Rectángulos en los bordes
+    SDL_Rect rect;
+    
+    // Borde superior
+    rect.x = x + cornerRadius;
+    rect.y = y;
+    rect.w = w - 2 * cornerRadius;
+    rect.h = cornerRadius;
+    SDL_RenderFillRect(renderer, &rect);
+
+    // Borde inferior
+    rect.x = x + cornerRadius;
+    rect.y = y + h - cornerRadius;
+    rect.w = w - 2 * cornerRadius;
+    rect.h = cornerRadius;
+    //SDL_RenderFillRect(renderer, &rect);
+
+    // Borde izquierdo
+    rect.x = x;
+    rect.y = y + cornerRadius;
+    rect.w = cornerRadius;
+    rect.h = h - 2 * cornerRadius;
+    SDL_RenderFillRect(renderer, &rect);
+
+    // Borde derecho
+    rect.x = x + w - cornerRadius;
+    rect.y = y + cornerRadius;
+    rect.w = cornerRadius;
+    rect.h = h - 2 * cornerRadius;
+    //SDL_RenderFillRect(renderer, &rect);
+
+    // Rellenar el espacio central
+    rect.x = x + cornerRadius;
+    rect.y = y + cornerRadius;
+    rect.w = w - 2 * cornerRadius;
+    rect.h = h - 2 * cornerRadius;
+    //SDL_RenderFillRect(renderer, &rect);
+}
+
 
 //Interfaz
 void createGUI(SDL_Renderer* renderer)
 {
-    //Desempaquetar el archivo gui.zip
-    //Leer el archivo asset.json
-
-    //GUI testing
-    
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE );    
-
-        // Definir las coordenadas y dimensiones del rectángulo
-        SDL_Rect rect;
-        rect.x = 0;
-        rect.y = 0;
-        rect.w = WIDTHW;
-        rect.h = 20;
-
-        // Rellenar el rectángulo con color
-        SDL_RenderFillRect(renderer, &rect);
-
-        SDL_SetRenderDrawColor(renderer, 250, 250, 250, SDL_ALPHA_OPAQUE);
-        SDL_Rect rect1;
-        rect1.x = 0;
-        rect1.y = 22;
-        rect1.w = 200;
-        rect1.h = HEIGHTH-99;
-        
-        SDL_SetRenderDrawColor(renderer, 133, 133, 133, SDL_ALPHA_OPAQUE );
-        
-        SDL_RenderFillRect(renderer, &rect1);
-
-        SDL_RenderDrawLine(renderer, 0,0,WIDTHW-1,0);
-        SDL_RenderDrawLine(renderer, 0,0,0,20);
-        SDL_RenderDrawLine(renderer, 0,20,WIDTHW-1,20);
-        SDL_RenderDrawLine(renderer, WIDTHW-1,0,WIDTHW-1,20);
-
-        SDL_Rect rect2;
-        rect2.x = 201;
-        rect2.y = 22;
-        rect2.w = WIDTHW-2;
-        rect2.h = HEIGHTH-99;
-
-        SDL_SetRenderDrawColor(renderer, 133, 133, 133, SDL_ALPHA_OPAQUE );
-
-        SDL_RenderFillRect(renderer, &rect2);
-
-        SDL_SetRenderDrawColor(renderer, 194, 189, 199, 128 );
-
-        SDL_Rect rect3;
-        rect3.x = 0;
-        rect3.y = HEIGHTH-80;
-        rect3.w = WIDTHW;
-        rect3.h = 80;
-
-        SDL_RenderFillRect(renderer, &rect3);      
-
-        SDL_SetRenderDrawColor(renderer, 127, 63, 191, 128);
-
-        SDL_Rect rect4;
-        rect4.x = (WIDTHW/2)-120;
-        rect4.y = HEIGHTH-60;
-        rect4.w = 240;
-        rect4.h = 40;
-
-        SDL_RenderFillRect(renderer, &rect4);    
+      draw_rectangle(renderer, 0, 0, WIDTHW, 20, 255, 255, 255);
+      draw_rectangle(renderer, 0,22,200,HEIGHTH-99, 250, 250, 250);
+      draw_rectangle(renderer, 201,22,WIDTHW-2,HEIGHTH-99, 133, 133, 133);
+      //draw_rectangle(renderer, 0, HEIGHTH-70, WIDTHW, 30, 194, 189, 199);
+      draw_rounded_rectangle(renderer, 20, HEIGHTH-70, WIDTHW/2, 50, 5, 80, 130, 140);
+      
+      //draw_filled_circle(renderer, 0, HEIGHTH-200, 15, 80, 130, 140);
 }
