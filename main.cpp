@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
         SDL_RenderClear(renderer);
 
-        //lugar donde quiero poder usar las funciones fuera de este loop
+        //Llamar a la interfaz
         createGUI(renderer);
 
         SDL_RenderPresent(renderer);
@@ -82,6 +82,7 @@ void RunGame()
 
 }
 
+//Interfaz
 void createGUI(SDL_Renderer* renderer)
 {
     //Desempaquetar el archivo gui.zip
