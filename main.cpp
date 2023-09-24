@@ -1,6 +1,7 @@
 #include <iostream>
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_image.h>
+#include <SDL3/SDL_ttf.h>
 #include <cmath>
 
 const int WIDTH = 800, HEIGHT = 600;
@@ -17,6 +18,11 @@ int main(int argc, char* argv[])
     {
         //std::cout << "Error al inicializar SDL: " << SDL_GetError() << std::endl;
         return 1;
+    }
+
+    if (TTF_Init() < 0) {
+        printf("SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError());
+        return 2;
     }
 
     SDL_Window* window = SDL_CreateWindow(NameEngine, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTHW, HEIGHTH, SDL_WINDOW_RESIZABLE);
@@ -134,9 +140,11 @@ void draw_rounded_rectangle(SDL_Renderer* renderer, int x, int y, int w, int h, 
     int circleRadius = cornerRadius;
 
     // Esquina superior izquierda
-    draw_filled_circle(renderer, x + 10, y, circleRadius, r, g, b); //left top
-    //draw_filled_circle(renderer, x + circleRadius + 1, y + h - circleRadius, circleRadius, r, g, b); //left bottom
-
+    draw_filled_circle(renderer, x + circleRadius, y + circleRadius, circleRadius, r, g, b); //left top
+    draw_filled_circle(renderer, x + circleRadius, y + h - circleRadius, circleRadius, r, g, b); //left bottom
+    draw_filled_circle(renderer, x + (w - circleRadius), y + (h - circleRadius), circleRadius, r, g, b); //right bottom   
+    draw_filled_circle(renderer, x + (w - circleRadius), y + circleRadius, circleRadius, r,g,b); //right top
+    
     //SDL_RenderDrawLine(renderer, x + circleRadius, y, x + w - circleRadius, y);
     //SDL_RenderDrawLine(renderer, x, y + circleRadius, x, y + h - circleRadius);
     //SDL_RenderDrawLine(renderer, x + circleRadius, y + h, x + w - circleRadius, y + h);
@@ -157,7 +165,7 @@ void draw_rounded_rectangle(SDL_Renderer* renderer, int x, int y, int w, int h, 
     rect.y = y + h - cornerRadius;
     rect.w = w - 2 * cornerRadius;
     rect.h = cornerRadius;
-    //SDL_RenderFillRect(renderer, &rect);
+    SDL_RenderFillRect(renderer, &rect);
 
     // Borde izquierdo
     rect.x = x;
@@ -171,25 +179,73 @@ void draw_rounded_rectangle(SDL_Renderer* renderer, int x, int y, int w, int h, 
     rect.y = y + cornerRadius;
     rect.w = cornerRadius;
     rect.h = h - 2 * cornerRadius;
-    //SDL_RenderFillRect(renderer, &rect);
+    SDL_RenderFillRect(renderer, &rect);
 
     // Rellenar el espacio central
     rect.x = x + cornerRadius;
     rect.y = y + cornerRadius;
     rect.w = w - 2 * cornerRadius;
     rect.h = h - 2 * cornerRadius;
-    //SDL_RenderFillRect(renderer, &rect);
+    SDL_RenderFillRect(renderer, &rect);
 }
 
+void draw_text(SDL_Renderer* renderer, int x, int y, const std::string& text, int text_size, Uint8 r, Uint8 g, Uint8 b) {
+    // Crear una estructura de color SDL_Color
+    SDL_Color color = { r, g, b, 255 }; // El último valor es la opacidad (255 para opaco)
+
+    // Cargar la fuente (ajusta la ruta a tu fuente TTF)
+    TTF_Font* font = TTF_OpenFont("Arial.ttf", text_size);
+    if (!font) {
+        printf("Failed to load font! SDL_ttf Error: %s\n", TTF_GetError());
+        return;
+    }
+
+    // Crear una superficie de texto renderizada
+    SDL_Surface* text_surface = TTF_RenderText_Solid(font, text.c_str(), color);
+    if (!text_surface) {
+        printf("Failed to render text surface! SDL_ttf Error: %s\n", TTF_GetError());
+        TTF_CloseFont(font);
+        return;
+    }
+
+    // Crear una textura a partir de la superficie de texto
+    SDL_Texture* text_texture = SDL_CreateTextureFromSurface(renderer, text_surface);
+    if (!text_texture) {
+        printf("Failed to create text texture! SDL Error: %s\n", SDL_GetError());
+        SDL_FreeSurface(text_surface);
+        TTF_CloseFont(font);
+        return;
+    }
+
+    // Definir el rectángulo de destino
+    SDL_Rect dst_rect = { x, y, text_surface->w, text_surface->h };
+
+    // Dibujar la textura en el renderer
+    SDL_RenderCopy(renderer, text_texture, NULL, &dst_rect);
+
+    // Limpiar recursos
+    SDL_DestroyTexture(text_texture);
+    SDL_FreeSurface(text_surface);
+    TTF_CloseFont(font);
+}
 
 //Interfaz
 void createGUI(SDL_Renderer* renderer)
 {
       draw_rectangle(renderer, 0, 0, WIDTHW, 20, 255, 255, 255);
-      draw_rectangle(renderer, 0,22,200,HEIGHTH-99, 250, 250, 250);
-      draw_rectangle(renderer, 201,22,WIDTHW-2,HEIGHTH-99, 133, 133, 133);
+      
+      //draw_rectangle(renderer, 0,21,200,HEIGHTH-100, 250, 250, 250);
+      //draw_rectangle(renderer, 201,21,WIDTHW-2,HEIGHTH-100, 133, 133, 133);
       //draw_rectangle(renderer, 0, HEIGHTH-70, WIDTHW, 30, 194, 189, 199);
-      draw_rounded_rectangle(renderer, 20, HEIGHTH-70, WIDTHW/2, 50, 5, 80, 130, 140);
+      
+      //draw_rounded_rectangle(renderer, 0, 0, WIDTHW, 20, 6, 255, 255, 255); //barra de menus
+      draw_rounded_rectangle(renderer, 0, 21, 200, HEIGHTH-100, 6, 200, 200, 200); //panel izquierdo
+      draw_rounded_rectangle(renderer, 201,21,WIDTHW-2,HEIGHTH-100, 6, 133, 133, 133);//main canvas
+      draw_rounded_rectangle(renderer, 1, HEIGHTH-78, WIDTHW-2, 76, 6, 194, 189, 199);//panel de pestañas de interfaz
       
       //draw_filled_circle(renderer, 0, HEIGHTH-200, 15, 80, 130, 140);
+
+      draw_text(renderer, 1, 1, "¡Hola, SDL!", 10, 0, 0, 0); // Color del texto (blanco en formato RGB)        
+
+
 }
