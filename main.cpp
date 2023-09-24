@@ -8,7 +8,7 @@ const char* NameEngine = "JoyEngine 0.1.23092023-2103";
 
 // Función para agregar la lógica del juego
 void RunGame();
-void createGUI();
+void createGUI(SDL_Renderer* renderer);
 
 int main(int argc, char* argv[])
 {
@@ -56,6 +56,39 @@ int main(int argc, char* argv[])
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
         SDL_RenderClear(renderer);
 
+        //lugar donde quiero poder usar las funciones fuera de este loop
+        createGUI(renderer);
+
+        SDL_RenderPresent(renderer);
+        
+        // Lógica del juego que se ejecuta en cada iteración del bucle principal
+        //RunGame();
+
+    }
+    
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+
+    return 0;
+}
+
+//funciones fuera del main
+
+void RunGame()
+{
+    // Agrega aquí la logica del juego
+    ///sum logic :3
+
+}
+
+void createGUI(SDL_Renderer* renderer)
+{
+    //Desempaquetar el archivo gui.zip
+    //Leer el archivo asset.json
+
+    //GUI testing
+    
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE );    
 
         // Definir las coordenadas y dimensiones del rectángulo
@@ -113,31 +146,4 @@ int main(int argc, char* argv[])
         rect4.h = 40;
 
         SDL_RenderFillRect(renderer, &rect4);    
-
-        SDL_RenderPresent(renderer);
-        
-        // Lógica del juego que se ejecuta en cada iteración del bucle principal
-        //RunGame();
-
-    }
-    
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    SDL_Quit();
-
-    return 0;
-}
-
-//funciones fuera del main
-
-void RunGame()
-{
-    // Agrega aquí la logica del juego
-    ///sum logic :3
-
-}
-
-void createGUI()
-{
-        
 }
