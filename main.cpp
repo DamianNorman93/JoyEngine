@@ -3,20 +3,25 @@
 #include <SDL3/SDL_image.h>
 #include <SDL3/SDL_ttf.h>
 #include <cmath>
+#include <vector>
 
 const int WIDTH = 800, HEIGHT = 600;
 int WIDTHW = 800, HEIGHTH = 600;
 const char* NameEngine = "JoyEngine 0.1.23092023-2103";
+SDL_Texture* spriteTexture = nullptr;
+
 
 // Función para agregar la lógica del juego
 void RunGame();
 void createGUI(SDL_Renderer* renderer);
+void draw_sprite(SDL_Renderer* renderer, int x, int y, SDL_Texture* spriteTexture, int alpha);
+
 
 int main(int argc, char* argv[])
 {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
     {
-        //std::cout << "Error al inicializar SDL: " << SDL_GetError() << std::endl;
+        std::cout << "Error al inicializar SDL: " << SDL_GetError() << std::endl;
         return 1;
     }
 
@@ -42,7 +47,27 @@ int main(int argc, char* argv[])
         SDL_Quit();
         return 1;
     }
-    
+
+    // Load your sprite image with transparency (e.g., PNG)
+    SDL_Surface* spriteSurface = IMG_Load("./sprite.png");
+    if (spriteSurface == nullptr)
+    {
+        std::cout << "Error loading sprite: " << IMG_GetError() << std::endl;
+        // Handle error and return
+    }
+
+    // Crea una textura a partir de spriteSurface
+    SDL_Texture* spriteTexture = SDL_CreateTextureFromSurface(renderer, spriteSurface);
+
+    // Verifica si la creación de la textura fue exitosa
+    if (spriteTexture == nullptr)
+    {
+        std::cout << "Error al crear la textura desde la superficie: " << SDL_GetError() << std::endl;
+        // Maneja el error según sea necesario
+    } else {
+        std::cout << "ok" << std::endl;
+    }
+
     
     bool quit = false;
     SDL_Event event;
@@ -66,13 +91,19 @@ int main(int argc, char* argv[])
         //Llamar a la interfaz
         createGUI(renderer);
 
+        //draw_sprite(renderer, 16, 48, spriteTexture , 255);
+
+
+        
         SDL_RenderPresent(renderer);
         
         // Lógica del juego que se ejecuta en cada iteración del bucle principal
-        RunGame();
+        //RunGame();
+
+        
 
     }
-    
+    SDL_FreeSurface(spriteSurface);  // Free the surface as it's no longer needed
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
@@ -81,17 +112,6 @@ int main(int argc, char* argv[])
 }
 
 //funciones fuera del main
-
-void RunGame()
-{
-    // Agrega aquí la logica del juego
-    ///sum logic here :3
-    //load game.asset
-    //read game.json
-    //load interpreter
-    //display interpreter
-}
-
 //Funcion para dibujar un rectangulo simple relleno de color
 void draw_rectangle(SDL_Renderer* renderer, int x, int y, int w, int h, Uint8 r, Uint8 g, Uint8 b)
 {
@@ -231,29 +251,99 @@ void draw_text(SDL_Renderer* renderer, int x, int y, const std::string& text, in
     // Dibujar la textura en el renderer
     SDL_RenderCopy(renderer, text_texture, NULL, &dst_rect);
 
+    // Definir e iniciar carga de sprites
+
+
+
     // Limpiar recursos
     SDL_DestroyTexture(text_texture);
     SDL_FreeSurface(text_surface);
     TTF_CloseFont(font);
 }
 
-//Interfaz
-void createGUI(SDL_Renderer* renderer)
+void draw_sprite(SDL_Renderer* renderer, int x, int y, SDL_Texture* spriteTexture, int alpha)
 {
-      draw_rectangle(renderer, 0, 0, WIDTHW, 20, 255, 255, 255);
+
+    // Set the alpha value (transparency) for the sprite
+    SDL_SetTextureAlphaMod(spriteTexture, alpha);
+
+    // Get the width and height of the sprite texture
+    int spriteWidth, spriteHeight;
+    SDL_QueryTexture(spriteTexture, nullptr, nullptr, &spriteWidth, &spriteHeight);
+
+    // Create a destination rectangle for rendering
+    SDL_Rect dstRect = { x, y, spriteWidth, spriteHeight };
+
+    // Render the sprite
+    SDL_RenderCopy(renderer, spriteTexture, nullptr, &dstRect);
+}
+
+//Interfaz siempre al final
+void createGUI(SDL_Renderer* renderer)
+{   
+    bool show_gui = true;
+
+    if (show_gui = true){
+      draw_rectangle(renderer, 0, 0, WIDTHW, 27, 255, 255, 255);
       
       //draw_rectangle(renderer, 0,21,200,HEIGHTH-100, 250, 250, 250);
       //draw_rectangle(renderer, 201,21,WIDTHW-2,HEIGHTH-100, 133, 133, 133);
       //draw_rectangle(renderer, 0, HEIGHTH-70, WIDTHW, 30, 194, 189, 199);
       
       //draw_rounded_rectangle(renderer, 0, 0, WIDTHW, 20, 6, 255, 255, 255); //barra de menus
-      draw_rounded_rectangle(renderer, 0, 21, 200, HEIGHTH-100, 6, 200, 200, 200); //panel izquierdo
-      draw_rounded_rectangle(renderer, 201,21,WIDTHW-2,HEIGHTH-100, 6, 133, 133, 133);//main canvas
+      //draw_rounded_rectangle(renderer, 0, 21, 200, HEIGHTH-100, 6, 200, 200, 200); //panel izquierdo
+      
+      draw_rounded_rectangle(renderer, 0, 28,WIDTHW/*-202*/, 20, 6, 200, 200, 200);//main toolbar canvas
+                                        
+      //draw_rounded_rectangle(renderer, 201,42,WIDTHW-202,HEIGHTH-120, 6, 133, 133, 133);//main canvas
+      
+      draw_rounded_rectangle(renderer, 0,49,WIDTHW/*-205*/,HEIGHTH-128, 6, 133, 133, 133);//main canvas
+
       draw_rounded_rectangle(renderer, 1, HEIGHTH-78, WIDTHW-2, 76, 6, 194, 189, 199);//panel de pestañas de interfaz
       
       //draw_filled_circle(renderer, 0, HEIGHTH-200, 15, 80, 130, 140);
 
-      draw_text(renderer, 1, 1, "\u00A1a-string!", 15, 0, 0, 0); // Color del texto (blanco en formato RGB)        
+      draw_text(renderer, 1, 1, "\u00A1a-string!", 15, 0, 0, 0); // Color del texto (blanco en formato RGB) 
 
+      //currentFrame = (currentFrame + 1) % spriteFrames.size();
+      //alpha = (alpha + 1) % 256; // Adjust alpha value as needed
+      //draw_sprite(renderer, 100, 100, spriteTexture , 255);
+      
+      // Load your sprite image with transparency (e.g., PNG)
+    SDL_Surface* spriteSurface = IMG_Load("./ground.png");
+    if (spriteSurface == nullptr)
+    {
+        std::cout << "Error loading sprite: " << IMG_GetError() << std::endl;
+        // Handle error and return
+    }
 
+    // Crea una textura a partir de spriteSurface
+    SDL_Texture* spriteTexture = SDL_CreateTextureFromSurface(renderer, spriteSurface);
+
+    // Verifica si la creación de la textura fue exitosa
+    if (spriteTexture == nullptr)
+    {
+        std::cout << "Error al crear la textura desde la superficie: " << SDL_GetError() << std::endl;
+        // Maneja el error según sea necesario
+    }
+    /*  
+    draw_sprite(renderer, 0, 20, spriteTexture , 128);
+    draw_sprite(renderer, 0+64, 20, spriteTexture , 200);
+    draw_sprite(renderer, 0+128, 20, spriteTexture , 255);*/
+
+    draw_sprite(renderer, 16, 64, spriteTexture , 255);
+
+    }
+    
+      
+}
+
+void RunGame()
+{
+    // Agrega aquí la logica del juego
+    ///sum logic here :3
+    //load game.asset
+    //read game.json
+    //load interpreter
+    //display interpreter
 }
