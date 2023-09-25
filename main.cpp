@@ -86,9 +86,13 @@ void RunGame()
 {
     // Agrega aquí la logica del juego
     ///sum logic here :3
-
+    //load game.asset
+    //read game.json
+    //load interpreter
+    //display interpreter
 }
 
+//Funcion para dibujar un rectangulo simple relleno de color
 void draw_rectangle(SDL_Renderer* renderer, int x, int y, int w, int h, Uint8 r, Uint8 g, Uint8 b)
 {
     // Asegurarse de que el renderer esté configurado correctamente
@@ -112,6 +116,7 @@ void draw_rectangle(SDL_Renderer* renderer, int x, int y, int w, int h, Uint8 r,
     SDL_RenderFillRect(renderer, &rect);
 }
 
+//Funcion para dibujar un circulo, esto se usa con el rectangulo con esquinas redondeadas
 void draw_filled_circle(SDL_Renderer* renderer, int x, int y, int radius, Uint8 r, Uint8 g, Uint8 b) {
     SDL_SetRenderDrawColor(renderer, r, g, b, SDL_ALPHA_OPAQUE);
 
@@ -124,6 +129,7 @@ void draw_filled_circle(SDL_Renderer* renderer, int x, int y, int radius, Uint8 
     }
 }
 
+//Funcion para dibujar un rectangulo con esquinas redondeadas
 void draw_rounded_rectangle(SDL_Renderer* renderer, int x, int y, int w, int h, int cornerRadius, Uint8 r, Uint8 g, Uint8 b)
 {
     // Asegurarse de que el renderer esté configurado correctamente
@@ -189,9 +195,10 @@ void draw_rounded_rectangle(SDL_Renderer* renderer, int x, int y, int w, int h, 
     SDL_RenderFillRect(renderer, &rect);
 }
 
+//Funcion para dibujar texto
 void draw_text(SDL_Renderer* renderer, int x, int y, const std::string& text, int text_size, Uint8 r, Uint8 g, Uint8 b) {
     // Crear una estructura de color SDL_Color
-    SDL_Color color = { r, g, b, 255 }; // El último valor es la opacidad (255 para opaco)
+    SDL_Color color = { r, g, b, 250 }; // El último valor es la opacidad (255 para opaco)
 
     // Cargar la fuente (ajusta la ruta a tu fuente TTF)
     TTF_Font* font = TTF_OpenFont("Arial.ttf", text_size);
@@ -200,8 +207,9 @@ void draw_text(SDL_Renderer* renderer, int x, int y, const std::string& text, in
         return;
     }
 
-    // Crear una superficie de texto renderizada
-    SDL_Surface* text_surface = TTF_RenderText_Solid(font, text.c_str(), color);
+    // Crear una superficie de texto renderizada   
+    SDL_Surface* text_surface = TTF_RenderUTF8_Solid(font, text.c_str(), color);
+
     if (!text_surface) {
         printf("Failed to render text surface! SDL_ttf Error: %s\n", TTF_GetError());
         TTF_CloseFont(font);
@@ -245,7 +253,7 @@ void createGUI(SDL_Renderer* renderer)
       
       //draw_filled_circle(renderer, 0, HEIGHTH-200, 15, 80, 130, 140);
 
-      draw_text(renderer, 1, 1, "¡Hola, SDL!", 10, 0, 0, 0); // Color del texto (blanco en formato RGB)        
+      draw_text(renderer, 1, 1, "\u00A1a-string!", 15, 0, 0, 0); // Color del texto (blanco en formato RGB)        
 
 
 }
