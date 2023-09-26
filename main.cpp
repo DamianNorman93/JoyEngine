@@ -10,12 +10,12 @@ int WIDTHW = 800, HEIGHTH = 600;
 const char* NameEngine = "JoyEngine 0.1.23092023-2103";
 SDL_Texture* spriteTexture = nullptr;
 
-
 // Función para agregar la lógica del juego
-void RunGame();
-void createGUI(SDL_Renderer* renderer);
-void draw_sprite(SDL_Renderer* renderer, int x, int y, SDL_Texture* spriteTexture, int alpha);
 
+void createGUI(SDL_Renderer* renderer);
+void draw_sprite(SDL_Renderer* renderer, int x, int y, const char* filename, int alpha);
+void draw_point_grid(SDL_Renderer* renderer, int GRID_SIZE, int CELL_SIZE);
+void RunGame(SDL_Renderer* renderer);
 
 int main(int argc, char* argv[])
 {
@@ -47,27 +47,6 @@ int main(int argc, char* argv[])
         SDL_Quit();
         return 1;
     }
-
-    // Load your sprite image with transparency (e.g., PNG)
-    SDL_Surface* spriteSurface = IMG_Load("./sprite.png");
-    if (spriteSurface == nullptr)
-    {
-        std::cout << "Error loading sprite: " << IMG_GetError() << std::endl;
-        // Handle error and return
-    }
-
-    // Crea una textura a partir de spriteSurface
-    SDL_Texture* spriteTexture = SDL_CreateTextureFromSurface(renderer, spriteSurface);
-
-    // Verifica si la creación de la textura fue exitosa
-    if (spriteTexture == nullptr)
-    {
-        std::cout << "Error al crear la textura desde la superficie: " << SDL_GetError() << std::endl;
-        // Maneja el error según sea necesario
-    } else {
-        std::cout << "ok" << std::endl;
-    }
-
     
     bool quit = false;
     SDL_Event event;
@@ -98,12 +77,12 @@ int main(int argc, char* argv[])
         SDL_RenderPresent(renderer);
         
         // Lógica del juego que se ejecuta en cada iteración del bucle principal
-        //RunGame();
+        RunGame(renderer);
 
         
 
     }
-    SDL_FreeSurface(spriteSurface);  // Free the surface as it's no longer needed
+
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
@@ -261,21 +240,62 @@ void draw_text(SDL_Renderer* renderer, int x, int y, const std::string& text, in
     TTF_CloseFont(font);
 }
 
-void draw_sprite(SDL_Renderer* renderer, int x, int y, SDL_Texture* spriteTexture, int alpha)
+void draw_sprite(SDL_Renderer* renderer, int x, int y, const char* filename, int alpha)
 {
+    // Carga la imagen PNG utilizando SDL_image
+    SDL_Surface* spriteSurface = IMG_Load(filename);
+    if (!spriteSurface)
+    {
+        SDL_Log("Error al cargar la imagen: %s", IMG_GetError());
+        return;  // Salir de la función si hay un error
+    }
 
-    // Set the alpha value (transparency) for the sprite
+    // Crea una textura desde la superficie
+    SDL_Texture* spriteTexture = SDL_CreateTextureFromSurface(renderer, spriteSurface);
+
+    // Libera la superficie, ya que no la necesitamos después de crear la textura
+    SDL_FreeSurface(spriteSurface);
+
+    if (!spriteTexture)
+    {
+        SDL_Log("Error al crear la textura: %s", SDL_GetError());
+        return;  // Salir de la función si hay un error
+    }
+
+    // Configura el valor alfa (transparencia) para el sprite
     SDL_SetTextureAlphaMod(spriteTexture, alpha);
 
-    // Get the width and height of the sprite texture
+    // Obtiene el ancho y alto de la textura del sprite
     int spriteWidth, spriteHeight;
     SDL_QueryTexture(spriteTexture, nullptr, nullptr, &spriteWidth, &spriteHeight);
 
-    // Create a destination rectangle for rendering
+    // Crea un rectángulo de destino para la renderización
     SDL_Rect dstRect = { x, y, spriteWidth, spriteHeight };
 
-    // Render the sprite
+    // Renderiza el sprite
     SDL_RenderCopy(renderer, spriteTexture, nullptr, &dstRect);
+
+    // Libera la textura cuando ya no se necesite
+    SDL_DestroyTexture(spriteTexture);
+}
+
+// Dibuja una grilla de puntos de forma cuadrada
+void draw_point_grid(SDL_Renderer* renderer, int GRID_SIZE, int CELL_SIZE, Uint8 r, Uint8 g, Uint8 b)
+{
+
+    SDL_SetRenderDrawColor(renderer, r, g, b, SDL_ALPHA_OPAQUE); // Color blanco
+
+    for (int i = 0; i < GRID_SIZE; i++)
+    {
+        for (int j = 0; j < GRID_SIZE; j++)
+        {
+            int x = (i * CELL_SIZE) + 5;
+            int y = (j * CELL_SIZE) + 55;
+
+            // Dibuja un punto en la intersección de las coordenadas (x, y)
+            SDL_RenderDrawPoint(renderer, x, y);
+        }
+    }
 }
 
 //Interfaz siempre al final
@@ -284,61 +304,89 @@ void createGUI(SDL_Renderer* renderer)
     bool show_gui = true;
 
     if (show_gui = true){
-      draw_rectangle(renderer, 0, 0, WIDTHW, 27, 255, 255, 255);
-      
-      //draw_rectangle(renderer, 0,21,200,HEIGHTH-100, 250, 250, 250);
-      //draw_rectangle(renderer, 201,21,WIDTHW-2,HEIGHTH-100, 133, 133, 133);
-      //draw_rectangle(renderer, 0, HEIGHTH-70, WIDTHW, 30, 194, 189, 199);
-      
-      //draw_rounded_rectangle(renderer, 0, 0, WIDTHW, 20, 6, 255, 255, 255); //barra de menus
-      //draw_rounded_rectangle(renderer, 0, 21, 200, HEIGHTH-100, 6, 200, 200, 200); //panel izquierdo
-      
-      draw_rounded_rectangle(renderer, 0, 28,WIDTHW/*-202*/, 20, 6, 200, 200, 200);//main toolbar canvas
+        draw_rectangle(renderer, 0, 0, WIDTHW, 27, 255, 255, 255);
+
+        //draw_rectangle(renderer, 0,21,200,HEIGHTH-100, 250, 250, 250);
+        //draw_rectangle(renderer, 201,21,WIDTHW-2,HEIGHTH-100, 133, 133, 133);
+        //draw_rectangle(renderer, 0, HEIGHTH-70, WIDTHW, 30, 194, 189, 199);
+
+        //draw_rounded_rectangle(renderer, 0, 0, WIDTHW, 20, 6, 255, 255, 255); //barra de menus
+        //draw_rounded_rectangle(renderer, 0, 21, 200, HEIGHTH-100, 6, 200, 200, 200); //panel izquierdo
+
+        draw_rounded_rectangle(renderer, 0, 28,WIDTHW/*-202*/, 20, 6, 200, 200, 200);//main toolbar canvas
                                         
-      //draw_rounded_rectangle(renderer, 201,42,WIDTHW-202,HEIGHTH-120, 6, 133, 133, 133);//main canvas
-      
-      draw_rounded_rectangle(renderer, 0,49,WIDTHW/*-205*/,HEIGHTH-128, 6, 133, 133, 133);//main canvas
+        //draw_rounded_rectangle(renderer, 201,42,WIDTHW-202,HEIGHTH-120, 6, 133, 133, 133);//main canvas
 
-      draw_rounded_rectangle(renderer, 1, HEIGHTH-78, WIDTHW-2, 76, 6, 194, 189, 199);//panel de pestañas de interfaz
-      
-      //draw_filled_circle(renderer, 0, HEIGHTH-200, 15, 80, 130, 140);
+        draw_rounded_rectangle(renderer, 0,49,WIDTHW/*-205*/,HEIGHTH-128, 6, 133, 133, 133);//main canvas
 
-      draw_text(renderer, 1, 1, "\u00A1a-string!", 15, 0, 0, 0); // Color del texto (blanco en formato RGB) 
+        draw_rounded_rectangle(renderer, 1, HEIGHTH-78, WIDTHW-2, 76, 6, 194, 189, 199);//panel de pestañas de interfaz
 
-      //currentFrame = (currentFrame + 1) % spriteFrames.size();
-      //alpha = (alpha + 1) % 256; // Adjust alpha value as needed
-      //draw_sprite(renderer, 100, 100, spriteTexture , 255);
-      
-      // Load your sprite image with transparency (e.g., PNG)
-    SDL_Surface* spriteSurface = IMG_Load("./ground.png");
-    if (spriteSurface == nullptr)
-    {
-        std::cout << "Error loading sprite: " << IMG_GetError() << std::endl;
-        // Handle error and return
+        //draw_filled_circle(renderer, 0, HEIGHTH-200, 15, 80, 130, 140);
+
+        draw_text(renderer, 1, 1, "\u00A1a-string!", 15, 0, 0, 0); // Color del texto (blanco en formato RGB)
+
+        //draw_sprite(renderer, 0+32, 20, spriteTexture , 128);
+        
+        
+        
+        //draw_sprite(renderer, 0+64, 20+16, spriteTexture , 200);
+        //draw_sprite(renderer, 0+128, 20+32, spriteTexture , 255);
+
+        //draw_sprite(renderer, 16, 64, spriteTexture , 255);
+        //draw_rectangle(renderer, 0,0,WIDTHW,HEIGHTH, 0, 0, 0);
+
+        //SDL_RenderDrawPoint(renderer, 128, 128);
+        
+        //draw_point_grid(renderer, 28, 16, 255, 255, 255);
+        
+        //regular grid
+        for (int i = 0; i < 10; i++) 
+        {
+            for (int j = 0; j < 12; j++) 
+            {
+                int x = 5 + (i * 64); // Calcula la posición en x basada en i
+                int y = 55 + (j * 32); // Calcula la posición en y basada en j
+
+                draw_sprite(renderer, x, y, "background6.png", 255);
+            }
+        }
+
+        //iso draw
+        const int tileWidth = 64;  // Ancho de un tile isométrico
+        const int tileHeight = 32; // Altura de un tile isométrico
+
+        for (int i = 0; i < 5; i++) 
+        {
+            for (int j = 0; j < 10; j++) 
+            {
+                int x = 350 + (i * tileWidth / 2 - j * tileWidth / 2); // Cálculo de la coordenada x isométrica
+                int y = 150 + (i * tileHeight / 2 + j * tileHeight / 2); // Cálculo de la coordenada y isométrica
+                
+                draw_sprite(renderer, x, y, "isotile.png", 255);
+
+                draw_text(renderer, (x + tileWidth / 2) - 12, (y + tileHeight / 2) - 4, std::to_string(i), 10, 0, 0, 0);
+                draw_text(renderer, (x + tileWidth / 2) - 4, (y + tileHeight / 2) - 4, std::to_string(j), 10, 0, 0, 0);
+                
+            }
+        }
+        
+        draw_sprite(renderer, 350,150, "crate.png", 255);
+        
+        /*
+        draw_sprite(renderer, 16+(40*0), 50, "crate.png", 255);
+        draw_sprite(renderer, 16+(40*1), 50+20, "crate.png", 255);
+        draw_sprite(renderer, 16+(40*2), 50+(20*2), "crate.png", 255);
+        draw_sprite(renderer, 16+(40*3), 50+(20*3), "crate.png", 255);
+        */
+        
+        
+        
+        
     }
-
-    // Crea una textura a partir de spriteSurface
-    SDL_Texture* spriteTexture = SDL_CreateTextureFromSurface(renderer, spriteSurface);
-
-    // Verifica si la creación de la textura fue exitosa
-    if (spriteTexture == nullptr)
-    {
-        std::cout << "Error al crear la textura desde la superficie: " << SDL_GetError() << std::endl;
-        // Maneja el error según sea necesario
-    }
-    /*  
-    draw_sprite(renderer, 0, 20, spriteTexture , 128);
-    draw_sprite(renderer, 0+64, 20, spriteTexture , 200);
-    draw_sprite(renderer, 0+128, 20, spriteTexture , 255);*/
-
-    draw_sprite(renderer, 16, 64, spriteTexture , 255);
-
-    }
-    
-      
+          
 }
 
-void RunGame()
+void RunGame(SDL_Renderer* renderer)
 {
     // Agrega aquí la logica del juego
     ///sum logic here :3
@@ -346,4 +394,6 @@ void RunGame()
     //read game.json
     //load interpreter
     //display interpreter
+    
+     
 }
